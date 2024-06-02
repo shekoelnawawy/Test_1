@@ -55,7 +55,7 @@ for x in itertools.permutations(numbers):
     # You can also pass keyword arguments identical to instantiate a Hierarchical object
     model2 = clustering.HierarchicalTree(dists_fun=dtw.distance_matrix_fast, dists_options={})
     cluster_idx = model2.fit(ts)
-    # print(cluster_idx)
+    print(cluster_idx)
     # print(model2.linkage)
 
     model2.plot("./output_2018/hierarchy"+str(i)+".pdf", ts_label_margin = -200, show_ts_label=lb, show_tr_label=True)
