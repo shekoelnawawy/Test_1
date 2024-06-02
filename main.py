@@ -58,7 +58,7 @@ for x in itertools.permutations(numbers):
     # print(cluster_idx)
     # print(model2.linkage)
 
-    model2.plot("./output_2018/hierarchy"+str(i)+".pdf", ts_label_margin = -200, show_ts_label=lb)
+    model2.plot("./output_2018/hierarchy"+str(i)+".pdf", ts_label_margin = -200, show_ts_label=lb, show_tr_label=True)
     i += 1
     break
 
