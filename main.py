@@ -57,7 +57,7 @@ for x in itertools.permutations(numbers):
     cluster_idx = model2.fit(ts)
 
     print(model2.linkage)
-    print(model2.maxnode)
+    print(model2.get_linkage(model2.maxnode))
 
     # print(cluster_idx)
     # print(model2.linkage)
