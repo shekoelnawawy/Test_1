@@ -57,6 +57,7 @@ for x in itertools.permutations(numbers):
     cluster_idx = model2.fit(ts)
 
     print(model2.linkage)
+    print(model2.get_linkage(3))
 
     # print(cluster_idx)
     # print(model2.linkage)
