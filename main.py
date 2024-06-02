@@ -50,7 +50,7 @@ for x in itertools.permutations(numbers):
     lb.append(labels[int(x[5])])
 
     ds = dtw.distance_matrix_fast(ts)
-    #print(ds)
+    print(ds)
 
     # You can also pass keyword arguments identical to instantiate a Hierarchical object
     model2 = clustering.HierarchicalTree(dists_fun=dtw.distance_matrix_fast, dists_options={})
