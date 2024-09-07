@@ -1,8 +1,37 @@
 import pandas as pd
 
-df = pd.read_csv('/home/mnawawy/Downloads/inputevents.csv')
+df_chartevents = pd.read_csv('/home/mnawawy/Downloads/chartevents.csv')
 
-print(df.to_string())
+print(sum(df_chartevents['itemid'] == 220045))
+
+# df_extractedinputs.to_csv('/Users/nawawy/Desktop/extractedinputs.csv')
+
+
+#
+# import pandas as pd
+#
+# df_inputevents = pd.read_csv('/Users/nawawy/Desktop/inputevents.csv')
+#
+# print(len(df_inputevents))
+# exit(1)
+#
+# unique_items = df_inputevents['itemid'].unique()
+#
+# df_items = pd.read_csv('/Users/nawawy/Desktop/d_items.csv')
+#
+# df_extractedinputs = df_items[df_items['itemid'].isin(unique_items)]
+#
+# df_extractedinputs['count'] = 0
+#
+#
+# print(sum(df_inputevents['itemid'] == df_extractedinputs['itemid'].iloc[0]))
+#
+# for i in range(len(df_extractedinputs)):
+#     print(i)
+#     print(sum(df_inputevents['itemid'] == df_extractedinputs['itemid'].iloc[i]))
+#     df_extractedinputs['count'].iloc[i] = sum(df_inputevents['itemid'] == df_extractedinputs['itemid'].iloc[i])
+#
+# df_extractedinputs.to_csv('/Users/nawawy/Desktop/extractedinputs.csv')
 
 # import numpy as np
 # import joblib
