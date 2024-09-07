@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv('/Users/nawawy/Desktop/inputevents.csv')
+df = pd.read_csv('/home/mnawawy/Downloads/inputevents.csv')
 
 print(df.to_string())
 
