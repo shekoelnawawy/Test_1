@@ -1,70 +1,412 @@
-import numpy as np
-import joblib
-from scipy import stats
-from dtaidistance import dtw, clustering
-import itertools
+import pandas as pd
 
-# patients = ['540', '544', '552', '567', '584', '596', 'allsubs']
-patients = ['559', '563', '570', '575', '588', '591', 'allsubs']
+df = pd.read_csv('/Users/nawawy/Desktop/inputevents.csv')
 
-patient = patients[0]
-df_0 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
-patient = patients[1]
-df_1 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
-patient = patients[2]
-df_2 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
-patient = patients[3]
-df_3 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
-patient = patients[4]
-df_4 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
-patient = patients[5]
-df_5 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+print(df.to_string())
 
-df_0 = stats.zscore(np.array(df_0, dtype=np.double))
-df_1 = stats.zscore(np.array(df_1, dtype=np.double))
-df_2 = stats.zscore(np.array(df_2, dtype=np.double))
-df_3 = stats.zscore(np.array(df_3, dtype=np.double))
-df_4 = stats.zscore(np.array(df_4, dtype=np.double))
-df_5 = stats.zscore(np.array(df_5, dtype=np.double))
+# import numpy as np
+# import joblib
+# from scipy import stats
+# from dtaidistance import dtw, clustering
+# import itertools
+#
+# df = joblib.load('/Users/nawawy/Desktop/data/2020data/540.train.pkl')
+#
+# print(min(df.dose.loc[df['dose'].notnull()]))
+# print(max(df.dose.loc[df['dose'].notnull()]))
 
-numbers = ['0', '1', '2', '3', '4', '5']
+# import numpy as np
+# import joblib
+# from scipy import stats
+# from dtaidistance import dtw, clustering
+# import itertools
+#
+# year = '2018'
+# # patients = ['540', '544', '552', '567', '584', '596', 'allsubs']
+# patients = ['559', '563', '570', '575', '588', '591', 'allsubs']
+#
+# patient = patients[0]
+# df_0 = joblib.load('./Data/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[1]
+# df_1 = joblib.load('./Data/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[2]
+# df_2 = joblib.load('./Data/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[3]
+# df_3 = joblib.load('./Data/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[4]
+# df_4 = joblib.load('./Data/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[5]
+# df_5 = joblib.load('./Data/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+#
+# df_0 = stats.zscore(np.array(df_0, dtype=np.double))
+# df_1 = stats.zscore(np.array(df_1, dtype=np.double))
+# df_2 = stats.zscore(np.array(df_2, dtype=np.double))
+# df_3 = stats.zscore(np.array(df_3, dtype=np.double))
+# df_4 = stats.zscore(np.array(df_4, dtype=np.double))
+# df_5 = stats.zscore(np.array(df_5, dtype=np.double))
+#
+# numbers = ['0', '1', '2', '3', '4', '5']
+#
+# timeseries = [df_0, df_1, df_2, df_3, df_4, df_5]
+# labels = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
+#
+# i=0
+# for x in itertools.permutations(numbers):
+#     ts = []
+#     lb = []
+#     ts.append(timeseries[int(x[0])])
+#     ts.append(timeseries[int(x[1])])
+#     ts.append(timeseries[int(x[2])])
+#     ts.append(timeseries[int(x[3])])
+#     ts.append(timeseries[int(x[4])])
+#     ts.append(timeseries[int(x[5])])
+#     lb.append(labels[int(x[0])])
+#     lb.append(labels[int(x[1])])
+#     lb.append(labels[int(x[2])])
+#     lb.append(labels[int(x[3])])
+#     lb.append(labels[int(x[4])])
+#     lb.append(labels[int(x[5])])
+#
+#     ds = dtw.distance_matrix_fast(ts)
+#     #print(ds)
+#
+#     # You can also pass keyword arguments identical to instantiate a Hierarchical object
+#     model2 = clustering.HierarchicalTree(dists_fun=dtw.distance_matrix_fast, dists_options={})
+#     cluster_idx = model2.fit(ts)
+#     # print(cluster_idx)
+#     # print(model2.linkage)
+#
+#     model2.plot("./output_"+year+"/hierarchy"+str(i)+".pdf", ts_label_margin = -200, show_ts_label=lb, show_tr_label = True)
+#     i += 1
+#
 
-timeseries = [df_0, df_1, df_2, df_3, df_4, df_5]
-labels = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
 
-i=0
-for x in itertools.permutations(numbers):
-    ts = []
-    lb = []
-    ts.append(timeseries[int(x[0])])
-    ts.append(timeseries[int(x[1])])
-    ts.append(timeseries[int(x[2])])
-    ts.append(timeseries[int(x[3])])
-    ts.append(timeseries[int(x[4])])
-    ts.append(timeseries[int(x[5])])
-    lb.append(labels[int(x[0])])
-    lb.append(labels[int(x[1])])
-    lb.append(labels[int(x[2])])
-    lb.append(labels[int(x[3])])
-    lb.append(labels[int(x[4])])
-    lb.append(labels[int(x[5])])
+# import numpy as np
+# import pandas as pd
+#
+# patients = ['2020_0', '2020_1', '2020_2', '2020_3', '2020_4', '2020_5', '2018_0', '2018_1', '2018_2', '2018_3', '2018_4', '2018_5']
+# # f = open("/Users/nawawy/Desktop/PatientData/LeastSubset.txt", "w")
+# #
+# # for i in range(10):
+# #     selection = []
+# #
+# #     while len(selection) != 3:
+# #         x = np.random.randint(12)
+# #         if not any(num == x for num in selection) and x != 1 and x != 2 and x != 11:
+# #             selection.append(x)
+# #             f.write(patients[x]+'\t')
+# #
+# #     f.write('\n')
+#
+# patient0 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[2]+'.npy'))
+# patient1 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[11]+'.npy'))
+#
+#
+# train_data = pd.concat([patient0, patient1])
+#
+# train_data = np.array(train_data)
+#
+# np.save('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_leastsub_2.npy', train_data)
 
-    ds = dtw.distance_matrix_fast(ts)
-    print(ds)
 
-    # You can also pass keyword arguments identical to instantiate a Hierarchical object
-    model2 = clustering.HierarchicalTree(dists_fun=dtw.distance_matrix_fast, dists_options={})
-    cluster_idx = model2.fit(ts)
+# f.close()
 
-    print(model2.linkage)
-    print(model2.get_linkage(model2.maxnode))
 
-    # print(cluster_idx)
-    # print(model2.linkage)
+# import numpy as np
+# import pandas as pd
+#
+# patients = ['2020_0', '2020_1', '2020_2', '2020_3', '2020_4', '2020_5', '2018_0', '2018_1', '2018_2', '2018_3', '2018_4', '2018_5']
+#
+#
+# patient0 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[0]+'.npy'))
+# patient1 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[1]+'.npy'))
+# patient2 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[2]+'.npy'))
+# patient3 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[3]+'.npy'))
+# patient4 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[4]+'.npy'))
+# patient5 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[5]+'.npy'))
+# patient6 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[6]+'.npy'))
+# patient7 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[7]+'.npy'))
+# patient8 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[8]+'.npy'))
+# patient9 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[9]+'.npy'))
+# patient10 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[10]+'.npy'))
+# patient11 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[11]+'.npy'))
+#
+# train_data = pd.concat([patient0, patient1])
+# train_data = pd.concat([train_data, patient2])
+# train_data = pd.concat([train_data, patient3])
+# train_data = pd.concat([train_data, patient4])
+# train_data = pd.concat([train_data, patient5])
+# train_data = pd.concat([train_data, patient6])
+# train_data = pd.concat([train_data, patient7])
+# train_data = pd.concat([train_data, patient8])
+# train_data = pd.concat([train_data, patient9])
+# train_data = pd.concat([train_data, patient10])
+# train_data = pd.concat([train_data, patient11])
+#
+# train_data = np.array(train_data)
+#
+# np.save('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_all_0.npy', train_data)
 
-    model2.plot("./output_2018/hierarchy"+str(i)+".pdf", ts_label_margin = -200, show_ts_label=lb, show_tr_label=True)
-    i += 1
-    break
+
+
+
+# import numpy as np
+# out = open("/Users/nawawy/Desktop/output/Results.csv", "w")
+# out.write('Run,Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# for year in [2020, 2018]:
+#     for patient in range(6):
+#         Accuracy = []
+#         Precision = []
+#         Recall = []
+#         F1 = []
+#         for run in range(10):
+#             with open('/Users/nawawy/Desktop/output/test_run_'+str(run)+'_patient_'+str(year)+'_'+str(patient)+'.txt', 'r') as file:
+#                 # read a list of lines into data
+#                 data = file.readlines()
+#             Accuracy.append(float(data[-3].split(' ')[4][:-1]))
+#             Precision.append(float(data[-3].split(' ')[6][:-1]))
+#             Recall.append(float(data[-3].split(' ')[8][:-1]))
+#             F1.append(float(data[-3].split(' ')[10][:-1]))
+#             out.write(str(run)+','+str(year)+','+str(patient)+','+str(data[-3].split(' ')[4][:-1])+','+str(data[-3].split(' ')[6][:-1])+','+str(data[-3].split(' ')[8][:-1])+','+str(data[-3].split(' ')[10]))
+#         out.write('Average,'+str(year)+','+str(patient)+','+str(np.average(np.array(Accuracy)))+','+str(np.average(np.array(Precision)))+','+str(np.average(np.array(Recall)))+','+str(np.average(np.array(F1)))+'\n')
+# out.close()
+# for i in range(10):
+#     # now change the 2nd line, note that you have to add a newline
+#     print("\"patient\": \""+str(i)+"\",")
+#
+# exit(1)
+#
+#
+# import numpy as np
+# import pandas as pd
+#
+# patients = ['2020_0', '2020_1', '2020_2', '2020_3', '2020_4', '2020_5', '2018_0', '2018_1', '2018_2', '2018_3', '2018_4', '2018_5']
+# f = open("/Users/nawawy/Desktop/PatientData/TrainingSet.txt", "w")
+#
+# for i in range(10):
+#     selection = []
+#
+#     while len(selection) != 3:
+#         x = np.random.randint(12)
+#         if not any(num == x for num in selection) and x != 1 and x != 2 and x != 11:
+#             selection.append(x)
+#             f.write(patients[x]+'\t')
+#
+#     f.write('\n')
+#
+#     patient0 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[selection[0]]+'.npy'))
+#     patient1 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[selection[1]]+'.npy'))
+#     patient2 = pd.DataFrame(np.load('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_'+patients[selection[2]]+'.npy'))
+#
+#     train_data = pd.concat([patient0, patient1])
+#     train_data = pd.concat([train_data, patient2])
+#
+#     train_data = np.array(train_data)
+#
+#     np.save('/Users/nawawy/Desktop/PatientData/ohiot1dm_train_all_'+str(i)+'.npy', train_data)
+#
+#
+# f.close()
+# # for i in range(100):
+# #     print()
+# exit(1)
+#
+#
+# numbers = ['0', '1', '2', '3', '4', '5']
+#
+# timeseries = [df_0, df_1, df_2, df_3, df_4, df_5]
+# labels = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
+#
+# i=0
+# for x in itertools.permutations(numbers):
+#     ts = []
+#     lb = []
+#     ts.append(timeseries[int(x[0])])
+#     ts.append(timeseries[int(x[1])])
+#     ts.append(timeseries[int(x[2])])
+#     ts.append(timeseries[int(x[3])])
+#     ts.append(timeseries[int(x[4])])
+#     ts.append(timeseries[int(x[5])])
+#     lb.append(labels[int(x[0])])
+#     lb.append(labels[int(x[1])])
+#     lb.append(labels[int(x[2])])
+#     lb.append(labels[int(x[3])])
+#     lb.append(labels[int(x[4])])
+#     lb.append(labels[int(x[5])])
+#
+#
+# # columns = ['', 'glucose', 'finger', 'basal', 'hr', 'gsr', 'carbs', 'dose', 'postprandial']
+#
+# df = pd.DataFrame()
+# index = 0
+#
+# instances = []
+# for year in ['2020', '2018']:
+#     if year == '2020':
+#         patients = ['540', '544', '552', '567', '584', '596']  # , 'allsubs']
+#     else:
+#         patients = ['559', '563', '570', '575', '588', '591'] #, 'allsubs']
+#     for patient in patients:
+#         benign_data = joblib.load('/Users/nawawy/Desktop/Patients/' + year + '/' + patient + '/benign_data.pkl')
+#         adversarial_data = joblib.load('/Users/nawawy/Desktop/Patients/' + year + '/' + patient + '/adversarial_data.pkl')
+#
+#         for i in range(len(adversarial_data)):
+#             if adversarial_data[i][11][0] != benign_data[i][11][0]:
+#                 rand = random.randint(0, 1)
+#                 if rand % 2 == 0:
+#                     instance = [index, benign_data[i][11][0], benign_data[i][11][1], benign_data[i][11][5], benign_data[i][11][2], 0]
+#                 else:
+#                     instance = [index, adversarial_data[i][11][0], adversarial_data[i][11][1], adversarial_data[i][11][5], adversarial_data[i][11][2], 1]
+#             else:
+#                 instance = [index, benign_data[i][11][0], benign_data[i][11][1], benign_data[i][11][5], benign_data[i][11][2], 0]
+#             instances.insert(len(instances), instance)
+#
+#         index += 1
+#
+#     ohiot1dm_test = np.array(instances)
+#
+#     np.save('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_test_'+year+'.npy', ohiot1dm_test)
+#
+#
+#     df = pd.DataFrame()
+#
+#     index = 0
+#     for patient in patients:
+#
+#         p = joblib.load('/Users/nawawy/Desktop/data/'+year+'data/'+patient+'.train.pkl')
+#         p.insert(0, 'PatientID', index)
+#         p['adversarial'] = 0
+#         if not index:
+#             df = p[['PatientID', 'glucose', 'dose', 'finger', 'carbs', 'adversarial']]
+#         else:
+#             df = pd.concat([df, p[['PatientID', 'glucose', 'dose', 'finger', 'carbs', 'adversarial']]], ignore_index=True)
+#         index += 1
+#
+#     df = df.fillna(0)
+#
+#     train = np.array(df)
+#     np.save('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_train_'+year+'.npy', train)
+#
+#
+# train_2020 = np.load('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_train_2020.npy')
+# test_2020 = np.load('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_test_2020.npy')
+# train_2018 = np.load('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_train_2018.npy')
+# test_2018 = np.load('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_test_2018.npy')
+#
+# patients = [0, 1, 2, 3, 4, 5]
+# for i in patients:
+#     np.save('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_train_2020_' + str(i) + '.npy', train_2020[train_2020[:, 0] == i, 1:])
+#
+#     np.save('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_test_2020_' + str(i) + '.npy', test_2020[test_2020[:, 0] == i, 1:])
+#
+#     np.save('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_train_2018_' + str(i) + '.npy', train_2018[train_2018[:, 0] == i, 1:])
+#
+#     np.save('/Users/nawawy/Desktop/Patients/Data/ohiot1dm_test_2018_' + str(i) + '.npy', test_2018[test_2018[:, 0] == i, 1:])
+#
+
+
+# import numpy as np
+#
+# train_2020 = np.load('/Users/nawawy/Desktop/ohiot1dm_data/ohiot1dm_train_2020.npy')
+# train_2018 = np.load('/Users/nawawy/Desktop/ohiot1dm_data/ohiot1dm_train_2018.npy')
+# test_2020 = np.load('/Users/nawawy/Desktop/ohiot1dm_data/ohiot1dm_test_2020.npy')
+# test_2018 = np.load('/Users/nawawy/Desktop/ohiot1dm_data/ohiot1dm_test_2018.npy')
+#
+# # mask1 = np.logical_or(train_2020[:, 0] == 1, train_2020[:, 0] == 2)
+# # mask2 = np.logical_not(np.logical_or(test_2020[:, 0] == 1, test_2020[:, 0] == 2))
+# # train = train_2020[mask1, 1:]
+# # print(train.shape)
+# # print(train_2018[train_2018[:,0] == 5, 1:].shape)
+# # train = np.append(train, train_2018[train_2018[:,0] == 5, 1:], axis=0)
+# #
+# #
+# # np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_train_2020.npy', train)
+# # print(train.shape)
+#
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_train_2018_0.npy', train_2018[train_2018[:, 0] == 0, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_train_2018_1.npy', train_2018[train_2018[:, 0] == 1, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_train_2018_2.npy', train_2018[train_2018[:, 0] == 2, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_train_2018_3.npy', train_2018[train_2018[:, 0] == 3, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_train_2018_4.npy', train_2018[train_2018[:, 0] == 4, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_train_2018_5.npy', train_2018[train_2018[:, 0] == 5, 1:])
+#
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_test_2018_0.npy', test_2018[test_2018[:, 0] == 0, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_test_2018_1.npy', test_2018[test_2018[:, 0] == 1, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_test_2018_2.npy', test_2018[test_2018[:, 0] == 2, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_test_2018_3.npy', test_2018[test_2018[:, 0] == 3, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_test_2018_4.npy', test_2018[test_2018[:, 0] == 4, 1:])
+# np.save('/Users/nawawy/Desktop/untitledfolder3/ohiot1dm_test_2018_5.npy', test_2018[test_2018[:, 0] == 5, 1:])
+
+
+
+# import numpy as np
+# import joblib
+# from scipy import stats
+# from dtaidistance import dtw, clustering
+# import itertools
+#
+# # patients = ['540', '544', '552', '567', '584', '596', 'allsubs']
+# patients = ['559', '563', '570', '575', '588', '591', 'allsubs']
+#
+# patient = patients[0]
+# df_0 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[1]
+# df_1 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[2]
+# df_2 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[3]
+# df_3 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[4]
+# df_4 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[5]
+# df_5 = joblib.load('./Data/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+#
+# df_0 = stats.zscore(np.array(df_0, dtype=np.double))
+# df_1 = stats.zscore(np.array(df_1, dtype=np.double))
+# df_2 = stats.zscore(np.array(df_2, dtype=np.double))
+# df_3 = stats.zscore(np.array(df_3, dtype=np.double))
+# df_4 = stats.zscore(np.array(df_4, dtype=np.double))
+# df_5 = stats.zscore(np.array(df_5, dtype=np.double))
+#
+# numbers = ['0', '1', '2', '3', '4', '5']
+#
+# timeseries = [df_0, df_1, df_2, df_3, df_4, df_5]
+# labels = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
+#
+# i=0
+# for x in itertools.permutations(numbers):
+#     ts = []
+#     lb = []
+#     ts.append(timeseries[int(x[0])])
+#     ts.append(timeseries[int(x[1])])
+#     ts.append(timeseries[int(x[2])])
+#     ts.append(timeseries[int(x[3])])
+#     ts.append(timeseries[int(x[4])])
+#     ts.append(timeseries[int(x[5])])
+#     lb.append(labels[int(x[0])])
+#     lb.append(labels[int(x[1])])
+#     lb.append(labels[int(x[2])])
+#     lb.append(labels[int(x[3])])
+#     lb.append(labels[int(x[4])])
+#     lb.append(labels[int(x[5])])
+#
+#     ds = dtw.distance_matrix_fast(ts)
+#     print(ds)
+#
+#     # You can also pass keyword arguments identical to instantiate a Hierarchical object
+#     model2 = clustering.HierarchicalTree(dists_fun=dtw.distance_matrix_fast, dists_options={})
+#     cluster_idx = model2.fit(ts)
+#
+#     print(model2.linkage)
+#     print(model2.get_linkage(model2.maxnode))
+#
+#     # print(cluster_idx)
+#     # print(model2.linkage)
+#
+#     model2.plot("./output_2018/hierarchy"+str(i)+".pdf", ts_label_margin = -200, show_ts_label=lb, show_tr_label=True)
+#     i += 1
+#     break
 
 
 # import numpy as np
