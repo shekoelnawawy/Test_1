@@ -1,9 +1,14 @@
 import pandas as pd
 chunk_size = 100000
-sums = []
+
+total = 0
+HR_total = 0
 for chunk in pd.read_csv('/home/mnawawy/Downloads/chartevents.csv', chunksize=chunk_size):
-    sums.append(sum(chunk['itemid'] == 220045))
-    print(sum(sums))
+    HR_total += sum(chunk['itemid'] == 220045)
+    total += len(chunk)
+
+print("Number of entries = " + str(total))
+print("Number of HR = " + str(HR_total))
 
 # df_extractedinputs.to_csv('/Users/nawawy/Desktop/extractedinputs.csv')
 
