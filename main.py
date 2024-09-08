@@ -1,8 +1,9 @@
 import pandas as pd
-
-df_chartevents = pd.read_csv('/home/mnawawy/Downloads/chartevents.csv')
-
-print(sum(df_chartevents['itemid'] == 220045))
+chunk_size = 100000
+sums = []
+for chunk in pd.read_csv('/home/mnawawy/Downloads/chartevents.csv', chunksize=chunk_size):
+    sums.append(sum(chunk['itemid'] == 220045))
+    print(sum(sums))
 
 # df_extractedinputs.to_csv('/Users/nawawy/Desktop/extractedinputs.csv')
 
