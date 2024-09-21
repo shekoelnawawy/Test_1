@@ -1,15 +1,436 @@
-import pandas as pd
-chunk_size = 100000
+import os
 
-total = 0
-HR_total = 0
-for chunk in pd.read_csv('/home/mnawawy/Downloads/chartevents.csv', chunksize=chunk_size):
-    HR_total += sum(chunk['itemid'] == 220045)
-    total += len(chunk)
+years = ['2020', '2018']
+samples = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] #['0', '1', '2', '3', '4', '5']
+patients = ['0', '1', '2', '3', '4', '5']
+train_path = '/home/mnawawy/MAD-GAN/experiments/settings/ohiot1dm.txt'
+test_path = '/home/mnawawy/MAD-GAN/experiments/settings/ohiot1dm_test.txt'
 
-print("Number of entries = " + str(total))
-print("Number of HR = " + str(HR_total))
+for sample in samples:
+    with open(train_path, 'r') as fin:
+        lines = fin.readlines()
 
+    lines[2] = '"year": "samples",\n'
+    lines[3] = '"patient": "' + sample + '",\n'
+
+    with open(train_path, 'w') as fout:
+        fout.writelines(lines)
+
+    os.system('python /home/mnawawy/MAD-GAN/RGAN.py --settings_file ohiot1dm | tee /home/mnawawy/MAD-GAN/output/samples/train_' + sample + '.txt')
+
+    for year in years:
+        for patient in patients:
+            with open(test_path, 'r') as fin:
+                lines = fin.readlines()
+
+            lines[2] = '"year": "'+year+'",\n'
+            lines[3] = '"patient": "' + patient + '",\n'
+
+            with open(test_path, 'w') as fout:
+                fout.writelines(lines)
+
+            os.system('python /home/mnawawy/MAD-GAN/AD.py --settings_file ohiot1dm_test | tee /home/mnawawy/MAD-GAN/output/samples/test_run_'+sample+'_patient_'+year+'_'+patient+'.txt')
+
+
+
+
+
+# from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+# import numpy as np
+#
+# results = open('/Users/nawawy/Desktop/ResultsKNN/All/Results.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# # Samples Training
+#
+# train = np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_train_all_0.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+#
+# neigh = KNeighborsClassifier(n_neighbors=3)
+# neigh.fit(train_x, train_y)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = neigh.predict(test_x)
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+#
+
+
+
+# from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+# import numpy as np
+#
+# results = open('/Users/nawawy/Desktop/ResultsKNN/Samples Training/Results.csv', 'w')
+# results.write('Run,Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# neigh = KNeighborsClassifier(n_neighbors=3)
+# # Samples Training
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         Accuracy = []
+#         Precision = []
+#         Recall = []
+#         F1 = []
+#         test = np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         for sample in range(10):
+#             results.write(str(sample)+','+str(year)+','+str(patient)+',')
+#             train = np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_train_samples_' + str(sample) + '.npy')
+#
+#             train_x = train[:, :-1]
+#             train_y = train[:, -1]
+#
+#             neigh.fit(train_x, train_y)
+#
+#
+#             lst = neigh.predict(test_x)
+#
+#             Accuracy.insert(len(Accuracy), accuracy_score(test_y, lst)*100)
+#             Precision.insert(len(Precision), precision_score(test_y, lst))
+#             Recall.insert(len(Recall), recall_score(test_y, lst))
+#             F1.insert(len(F1), f1_score(test_y, lst))
+#
+#             results.write(str(Accuracy[-1]) + ',' + str(Precision[-1]) + ',' + str(Recall[-1]) + ',' + str(F1[-1]) + '\n')
+#         results.write('Average,'+str(year)+','+str(patient)+','+str(np.mean(Accuracy)) + ',' + str(np.mean(Precision)) + ',' + str(np.mean(Recall)) + ',' + str(np.mean(F1)) + '\n')
+
+
+
+# from sklearn.svm import OneClassSVM
+# from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+#
+# import numpy as np
+# import csv
+# import pandas as pd
+#
+# results = open('/Users/nawawy/Desktop/Results/All/Results.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# # Samples Training
+#
+# train = np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_train_all_0.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+# clf = OneClassSVM(gamma='auto').fit(train_x)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = clf.predict(test_x)
+#
+#         lst[lst == 1] = 0
+#         lst[lst == -1] = 1
+#
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+
+
+# import numpy as np
+# import pandas as pd
+#
+# patients = ['2020_0', '2020_1', '2020_2', '2020_3', '2020_4', '2020_5', '2018_0', '2018_1', '2018_2', '2018_3', '2018_4', '2018_5']
+# # f = open("/Users/nawawy/Desktop/PatientData/TrainingSet.txt", "w")
+# index = 0
+# with open("/Users/nawawy/Desktop/Data2/Samples.txt", "r") as file:
+#     for line in file:
+#         patient0 = pd.DataFrame(np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_train_' + line.split()[0] + '.npy'))
+#         patient1 = pd.DataFrame(np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_train_' + line.split()[1] + '.npy'))
+#         patient2 = pd.DataFrame(np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_train_' + line.split()[2] + '.npy'))
+#
+#         train_data = pd.concat([patient0, patient1])
+#         train_data = pd.concat([train_data, patient2])
+#
+#         train_data = np.array(train_data)
+#
+#         np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_samples_'+str(index)+'.npy', train_data)
+#         index += 1
+#
+# file.close()
+
+
+#
+# import numpy as np
+# import math
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2018_0.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2018_0.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2018_0.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2018_1.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2018_1.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2018_1.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2018_2.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2018_2.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2018_2.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2018_3.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2018_3.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2018_3.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2018_4.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2018_4.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2018_4.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2018_5.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2018_5.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2018_5.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2020_0.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2020_0.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2020_0.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2020_1.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2020_1.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2020_1.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2020_2.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2020_2.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2020_2.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2020_3.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2020_3.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2020_3.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2020_4.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2020_4.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2020_4.npy', test)
+#
+#
+# data = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_2020_5.npy')
+# train = data[:math.floor(len(data)*0.7)-1, :]
+# test = data[math.floor(len(data)*0.7):, :]
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_train_2020_5.npy', train)
+# np.save('/Users/nawawy/Desktop/Data2/ohiot1dm_test_2020_5.npy', test)
+#
+
+
+# from sklearn.svm import OneClassSVM
+# from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+#
+# import numpy as np
+# import csv
+# import pandas as pd
+# import math
+#
+# results = open('/Users/nawawy/Desktop/Results/All/Results.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# # Samples Training
+#
+# train = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_all_0.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+# clf = OneClassSVM(gamma='auto').fit(train_x)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = clf.predict(test_x)
+#
+#         lst[lst == 1] = 0
+#         lst[lst == -1] = 1
+#
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+
+
+
+# from sklearn.svm import OneClassSVM
+# from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+#
+# import numpy as np
+# import math
+#
+# results = open('/Users/nawawy/Desktop/Results/Samples Training/Results.csv', 'w')
+# results.write('Run,Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# # Samples Training
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         Accuracy = []
+#         Precision = []
+#         Recall = []
+#         F1 = []
+#         test = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         for sample in range(10):
+#             results.write(str(sample)+','+str(year)+','+str(patient)+',')
+#             train = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_samples_' + str(sample) + '.npy')
+#
+#             train_x = train[:, :-1]
+#             train_y = train[:, -1]
+#             clf = OneClassSVM(gamma='auto').fit(train_x)
+#
+#             lst = clf.predict(test_x)
+#
+#             lst[lst == 1] = 0
+#             lst[lst == -1] = 1
+#
+#             Accuracy.insert(len(Accuracy), accuracy_score(test_y, lst)*100)
+#             Precision.insert(len(Precision), precision_score(test_y, lst))
+#             Recall.insert(len(Recall), recall_score(test_y, lst))
+#             F1.insert(len(F1), f1_score(test_y, lst))
+#
+#             results.write(str(Accuracy[-1]) + ',' + str(Precision[-1]) + ',' + str(Recall[-1]) + ',' + str(F1[-1]) + '\n')
+#         results.write('Average,'+str(year)+','+str(patient)+','+str(np.mean(Accuracy)) + ',' + str(np.mean(Precision)) + ',' + str(np.mean(Recall)) + ',' + str(np.mean(F1)) + '\n')
+
+
+# from sklearn.svm import OneClassSVM
+# from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
+# from sklearn.neighbors import KNeighborsClassifier
+#
+# import numpy as np
+# import math
+#
+# # Python code to count the number of occurrences
+# def countX(lst, x):
+#     count = 0
+#     for ele in lst:
+#         if (ele == x):
+#             count = count + 1
+#     return count
+#
+#
+# results = open('/Users/nawawy/Desktop/ResultsKNN/Samples Training/Results.csv', 'w')
+# results.write('Run,Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# neigh = KNeighborsClassifier(n_neighbors=3)
+#
+#
+# # Samples Training
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         Accuracy = []
+#         Precision = []
+#         Recall = []
+#         F1 = []
+#         test = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[math.floor(len(test)*0.7):, :-1]
+#         test_y = test[math.floor(len(test)*0.7):, -1]
+#
+#         for sample in range(10):
+#             results.write(str(sample)+','+str(year)+','+str(patient)+',')
+#             train = np.load('/Users/nawawy/Desktop/Data/ohiot1dm_test_samples_' + str(sample) + '.npy')
+#
+#             train_x = train[:math.floor(len(test)*0.7)-1, :-1]
+#             train_y = train[:math.floor(len(test)*0.7)-1, -1]
+#
+#
+#             print(len(train_y))
+#             print(countX(train_y, 0))
+#             print(countX(train_y, 1))
+#
+#             neigh.fit(train_x, train_y)
+#
+#
+#             lst = neigh.predict(test_x)
+#             print(lst)
+#             exit(1)
+#
+#             # lst[lst == 1] = 0
+#             # lst[lst == -1] = 1
+#
+#             Accuracy.insert(len(Accuracy), accuracy_score(test_y, lst)*100)
+#             Precision.insert(len(Precision), precision_score(test_y, lst))
+#             Recall.insert(len(Recall), recall_score(test_y, lst))
+#             F1.insert(len(F1), f1_score(test_y, lst))
+#
+#             results.write(str(Accuracy[-1]) + ',' + str(Precision[-1]) + ',' + str(Recall[-1]) + ',' + str(F1[-1]) + '\n')
+#         results.write('Average,'+str(year)+','+str(patient)+','+str(np.mean(Accuracy)) + ',' + str(np.mean(Precision)) + ',' + str(np.mean(Recall)) + ',' + str(np.mean(F1)) + '\n')
+
+
+# import os
+# import shutil
+#
+# path = '/Users/nawawy/Desktop/Honeymoon/Mohammed/'
+# files = [f for f in os.listdir(path)] #if f.isdir()]
+#
+# files.remove('.DS_Store')
+#
+# for file in files:
+#     source_dir = path+file
+#     target_dir = '/Users/nawawy/Desktop/Honeymoon/Pictures'
+#     file_names = os.listdir(source_dir)
+#
+#     for file_name in file_names:
+#         shutil.move(os.path.join(source_dir, file_name), target_dir)
+
+
+# for file in files:
+#     print(file)
+
+
+# import pandas as pd
+# chunk_size = 100000
+#
+# total = 0
+# HR_total = 0
+# for chunk in pd.read_csv('/home/mnawawy/Downloads/chartevents.csv', chunksize=chunk_size):
+#     HR_total += sum(chunk['itemid'] == 220045)
+#     total += len(chunk)
+#
+# print("Number of entries = " + str(total))
+# print("Number of HR = " + str(HR_total))
+#
 # df_extractedinputs.to_csv('/Users/nawawy/Desktop/extractedinputs.csv')
 
 
