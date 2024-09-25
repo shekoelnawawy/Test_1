@@ -1,59 +1,122 @@
-import os
+from dtaidistance import dtw_ndim
+import numpy as np
+import joblib
+from scipy import stats
+from dtaidistance import dtw, clustering
+import math
 
-years = ['2020', '2018']
-samples = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] #['0', '1', '2', '3', '4', '5']
-patients = ['0', '1', '2', '3', '4', '5']
-train_path = '/home/mnawawy/MAD-GAN/experiments/settings/ohiot1dm.txt'
-test_path = '/home/mnawawy/MAD-GAN/experiments/settings/ohiot1dm_test.txt'
+# features = ['glucose', 'finger', 'carbs', 'dose']
+# feature = features[0]
 
-for sample in samples:
-    with open(train_path, 'r') as fin:
-        lines = fin.readlines()
+year = '2020'
+# patients = ['559', '563', '570', '575', '588', '591', 'allsubs']
+patients = ['540', '544', '552', '567', '584', '596', 'allsubs']
 
-    lines[2] = '"year": "samples",\n'
-    lines[3] = '"patient": "' + sample + '",\n'
+patient = patients[0]
+df_0 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+patient = patients[1]
+df_1 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+patient = patients[2]
+df_2 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+patient = patients[3]
+df_3 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+patient = patients[4]
+df_4 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+patient = patients[5]
+df_5 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
 
-    with open(train_path, 'w') as fout:
-        fout.writelines(lines)
-
-    os.system('python /home/mnawawy/MAD-GAN/RGAN.py --settings_file ohiot1dm | tee /home/mnawawy/MAD-GAN/output/samples/train_' + sample + '.txt')
-
-    for year in years:
-        for patient in patients:
-            with open(test_path, 'r') as fin:
-                lines = fin.readlines()
-
-            lines[2] = '"year": "'+year+'",\n'
-            lines[3] = '"patient": "' + patient + '",\n'
-
-            with open(test_path, 'w') as fout:
-                fout.writelines(lines)
-
-            os.system('python /home/mnawawy/MAD-GAN/AD.py --settings_file ohiot1dm_test | tee /home/mnawawy/MAD-GAN/output/samples/test_run_'+sample+'_patient_'+year+'_'+patient+'.txt')
-
-
-
+df_0 = stats.zscore(np.array(df_0, dtype=np.double))
+df_1 = stats.zscore(np.array(df_1, dtype=np.double))
+df_2 = stats.zscore(np.array(df_2, dtype=np.double))
+df_3 = stats.zscore(np.array(df_3, dtype=np.double))
+df_4 = stats.zscore(np.array(df_4, dtype=np.double))
+df_5 = stats.zscore(np.array(df_5, dtype=np.double))
 
 
+# d = dtw_ndim.distance(df_0, df_1)
+# print(d)
+
+timeseries = [df_1, df_2, df_3, df_4, df_5, df_0]
+
+ds = dtw.distance_matrix_fast(timeseries)
+print(ds)
+
+
+# You can also pass keyword arguments identical to instantiate a Hierarchical object
+model2 = clustering.HierarchicalTree(dists_fun=dtw.distance_matrix_fast, dists_options={})
+cluster_idx = model2.fit(timeseries)
+
+print(model2.linkage)
+
+model2.plot("hierarchy.pdf")
+
+
+
+# import os
 # from sklearn.neighbors import KNeighborsClassifier
 # from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 # import numpy as np
 #
-# results = open('/Users/nawawy/Desktop/ResultsKNN/All/Results.csv', 'w')
+# if os.path.exists('/Users/nawawy/Desktop/ResultsKNN'):
+#     os.system('"yes" yes | rm -r /Users/nawawy/Desktop/ResultsKNN')
+#
+# os.system('mkdir /Users/nawawy/Desktop/ResultsKNN')
+#
+# neigh = KNeighborsClassifier(n_neighbors=7)
+# output_path = '/Users/nawawy/Desktop/ResultsKNN'
+# data_path = '/Users/nawawy/Desktop/Data2'
+# ######################################################################################################################################
+# # Samples
+# os.system('mkdir /Users/nawawy/Desktop/ResultsKNN/Samples\ Training')
+# results = open(output_path+'/Samples Training/Results.csv', 'w')
+# results.write('Run,Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         Accuracy = []
+#         Precision = []
+#         Recall = []
+#         F1 = []
+#         test = np.load(data_path+'/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         for sample in range(10):
+#             results.write(str(sample)+','+str(year)+','+str(patient)+',')
+#             train = np.load(data_path+'/ohiot1dm_train_samples_' + str(sample) + '.npy')
+#
+#             train_x = train[:, :-1]
+#             train_y = train[:, -1]
+#
+#             neigh.fit(train_x, train_y)
+#
+#             lst = neigh.predict(test_x)
+#
+#             Accuracy.insert(len(Accuracy), accuracy_score(test_y, lst)*100)
+#             Precision.insert(len(Precision), precision_score(test_y, lst))
+#             Recall.insert(len(Recall), recall_score(test_y, lst))
+#             F1.insert(len(F1), f1_score(test_y, lst))
+#
+#             results.write(str(Accuracy[-1]) + ',' + str(Precision[-1]) + ',' + str(Recall[-1]) + ',' + str(F1[-1]) + '\n')
+#         results.write('Average,'+str(year)+','+str(patient)+','+str(np.mean(Accuracy)) + ',' + str(np.mean(Precision)) + ',' + str(np.mean(Recall)) + ',' + str(np.mean(F1)) + '\n')
+#
+# results.close()
+# ######################################################################################################################################
+# #All patients
+# os.system('mkdir /Users/nawawy/Desktop/ResultsKNN/All')
+# results = open(output_path+'/All/Results.csv', 'w')
 # results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
 #
-# # Samples Training
-#
-# train = np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_train_all_0.npy')
+# train = np.load(data_path+'/ohiot1dm_train_all_0.npy')
 # train_x = train[:, :-1]
 # train_y = train[:, -1]
 #
-# neigh = KNeighborsClassifier(n_neighbors=3)
+#
 # neigh.fit(train_x, train_y)
 #
 # for year in [2018, 2020]:
 #     for patient in range(6):
-#         test = np.load('/Users/nawawy/Desktop/Data2/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test = np.load(data_path+'/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
 #         test_x = test[:, :-1]
 #         test_y = test[:, -1]
 #
@@ -62,10 +125,203 @@ for sample in samples:
 #         lst = neigh.predict(test_x)
 #
 #         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+# results.close()
+# ######################################################################################################################################
+# # Most
+# os.system('mkdir /Users/nawawy/Desktop/ResultsKNN/Most')
+# results = open(output_path + '/Most/Results.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
 #
-
-
-
+# train = np.load(data_path + '/ohiot1dm_train_most_0.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+#
+# neigh.fit(train_x, train_y)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load(data_path + '/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year) + ',' + str(patient) + ',')
+#
+#         lst = neigh.predict(test_x)
+#
+#         results.write(str(accuracy_score(test_y, lst) * 100) + ',' + str(precision_score(test_y, lst)) + ',' + str(
+#             recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+# results.close()
+# ######################################################################################################################################
+# #Least
+# os.system('mkdir /Users/nawawy/Desktop/ResultsKNN/Least')
+# results = open(output_path+'/Least/Results.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# train = np.load(data_path+'/ohiot1dm_train_least_0.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+#
+#
+# neigh.fit(train_x, train_y)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load(data_path+'/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = neigh.predict(test_x)
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+# results.close()
+# ######################################################################################################################################
+# #Leastsub_0
+# os.system('mkdir /Users/nawawy/Desktop/ResultsKNN/LeastSubsets')
+# results = open(output_path+'/LeastSubsets/leastsub_0.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# train = np.load(data_path+'/ohiot1dm_train_leastsub_0.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+#
+#
+# neigh.fit(train_x, train_y)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load(data_path+'/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = neigh.predict(test_x)
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+# results.close()
+# ######################################################################################################################################
+# #Leastsub_1
+# results = open(output_path+'/LeastSubsets/leastsub_1.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# train = np.load(data_path+'/ohiot1dm_train_leastsub_1.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+#
+#
+# neigh.fit(train_x, train_y)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load(data_path+'/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = neigh.predict(test_x)
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+# results.close()
+# ######################################################################################################################################
+# #Leastsub_2
+# results = open(output_path+'/LeastSubsets/leastsub_2.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# train = np.load(data_path+'/ohiot1dm_train_leastsub_2.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+#
+#
+# neigh.fit(train_x, train_y)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load(data_path+'/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = neigh.predict(test_x)
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+# results.close()
+# ######################################################################################################################################
+# #2020_1
+# results = open(output_path+'/LeastSubsets/2020_1.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# train = np.load(data_path+'/ohiot1dm_train_2020_1.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+#
+#
+# neigh.fit(train_x, train_y)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load(data_path+'/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = neigh.predict(test_x)
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+# results.close()
+# ######################################################################################################################################
+# #2020_2
+# results = open(output_path+'/LeastSubsets/2020_2.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# train = np.load(data_path+'/ohiot1dm_train_2020_2.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+#
+#
+# neigh.fit(train_x, train_y)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load(data_path+'/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = neigh.predict(test_x)
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+# results.close()
+# ######################################################################################################################################
+# #2018_5
+# results = open(output_path+'/LeastSubsets/2018_5.csv', 'w')
+# results.write('Year,Patient,Accuracy,Precision,Recall,F1\n')
+#
+# train = np.load(data_path+'/ohiot1dm_train_2018_5.npy')
+# train_x = train[:, :-1]
+# train_y = train[:, -1]
+#
+#
+# neigh.fit(train_x, train_y)
+#
+# for year in [2018, 2020]:
+#     for patient in range(6):
+#         test = np.load(data_path+'/ohiot1dm_test_' + str(year) + '_' + str(patient) + '.npy')
+#         test_x = test[:, :-1]
+#         test_y = test[:, -1]
+#
+#         results.write(str(year)+','+str(patient)+',')
+#
+#         lst = neigh.predict(test_x)
+#
+#         results.write(str(accuracy_score(test_y, lst)*100) + ',' + str(precision_score(test_y, lst)) + ',' + str(recall_score(test_y, lst)) + ',' + str(f1_score(test_y, lst)) + '\n')
+# results.close()
+# ######################################################################################################################################
 # from sklearn.neighbors import KNeighborsClassifier
 # from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 # import numpy as np
