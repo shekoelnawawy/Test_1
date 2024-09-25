@@ -1,16 +1,12 @@
-from dtaidistance import dtw_ndim
 import numpy as np
 import joblib
 from scipy import stats
 from dtaidistance import dtw, clustering
-import math
+import itertools
 
-# features = ['glucose', 'finger', 'carbs', 'dose']
-# feature = features[0]
-
-year = '2020'
-# patients = ['559', '563', '570', '575', '588', '591', 'allsubs']
-patients = ['540', '544', '552', '567', '584', '596', 'allsubs']
+year = '2018'
+# patients = ['540', '544', '552', '567', '584', '596', 'allsubs']
+patients = ['559', '563', '570', '575', '588', '591', 'allsubs']
 
 patient = patients[0]
 df_0 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
@@ -32,23 +28,92 @@ df_3 = stats.zscore(np.array(df_3, dtype=np.double))
 df_4 = stats.zscore(np.array(df_4, dtype=np.double))
 df_5 = stats.zscore(np.array(df_5, dtype=np.double))
 
+numbers = ['0', '1', '2', '3', '4', '5']
 
-# d = dtw_ndim.distance(df_0, df_1)
-# print(d)
+timeseries = [df_0, df_1, df_2, df_3, df_4, df_5]
+labels = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5']
 
-timeseries = [df_1, df_2, df_3, df_4, df_5, df_0]
+i=0
+for x in itertools.permutations(numbers):
+    ts = []
+    lb = []
+    ts.append(timeseries[int(x[0])])
+    ts.append(timeseries[int(x[1])])
+    ts.append(timeseries[int(x[2])])
+    ts.append(timeseries[int(x[3])])
+    ts.append(timeseries[int(x[4])])
+    ts.append(timeseries[int(x[5])])
+    lb.append(labels[int(x[0])])
+    lb.append(labels[int(x[1])])
+    lb.append(labels[int(x[2])])
+    lb.append(labels[int(x[3])])
+    lb.append(labels[int(x[4])])
+    lb.append(labels[int(x[5])])
 
-ds = dtw.distance_matrix_fast(timeseries)
-print(ds)
+    ds = dtw.distance_matrix_fast(ts)
+    #print(ds)
+
+    # You can also pass keyword arguments identical to instantiate a Hierarchical object
+    model2 = clustering.HierarchicalTree(dists_fun=dtw.distance_matrix_fast, dists_options={})
+    cluster_idx = model2.fit(ts)
+    # print(cluster_idx)
+    # print(model2.linkage)
+
+    model2.plot("./output_"+year+"/hierarchy"+str(i)+".pdf", ts_label_margin = -200, show_ts_label=lb, show_tr_label = True)
+    i += 1
 
 
-# You can also pass keyword arguments identical to instantiate a Hierarchical object
-model2 = clustering.HierarchicalTree(dists_fun=dtw.distance_matrix_fast, dists_options={})
-cluster_idx = model2.fit(timeseries)
-
-print(model2.linkage)
-
-model2.plot("hierarchy.pdf")
+# from dtaidistance import dtw_ndim
+# import numpy as np
+# import joblib
+# from scipy import stats
+# from dtaidistance import dtw, clustering
+# import math
+#
+# # features = ['glucose', 'finger', 'carbs', 'dose']
+# # feature = features[0]
+#
+# year = '2020'
+# # patients = ['559', '563', '570', '575', '588', '591', 'allsubs']
+# patients = ['540', '544', '552', '567', '584', '596', 'allsubs']
+#
+# patient = patients[0]
+# df_0 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[1]
+# df_1 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[2]
+# df_2 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[3]
+# df_3 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[4]
+# df_4 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+# patient = patients[5]
+# df_5 = joblib.load('./Patients/'+year+'/'+patient+'/instantaneous_error.pkl').mean(axis=1)
+#
+# df_0 = stats.zscore(np.array(df_0, dtype=np.double))
+# df_1 = stats.zscore(np.array(df_1, dtype=np.double))
+# df_2 = stats.zscore(np.array(df_2, dtype=np.double))
+# df_3 = stats.zscore(np.array(df_3, dtype=np.double))
+# df_4 = stats.zscore(np.array(df_4, dtype=np.double))
+# df_5 = stats.zscore(np.array(df_5, dtype=np.double))
+#
+#
+# # d = dtw_ndim.distance(df_0, df_1)
+# # print(d)
+#
+# timeseries = [df_1, df_2, df_3, df_4, df_5, df_0]
+#
+# ds = dtw.distance_matrix_fast(timeseries)
+# print(ds)
+#
+#
+# # You can also pass keyword arguments identical to instantiate a Hierarchical object
+# model2 = clustering.HierarchicalTree(dists_fun=dtw.distance_matrix_fast, dists_options={})
+# cluster_idx = model2.fit(timeseries)
+#
+# print(model2.linkage)
+#
+# model2.plot("hierarchy.pdf")
 
 
 
